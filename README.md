@@ -1,6 +1,7 @@
 # Ohjelmistotuotanto2
 
 Ryhmätyö: web -pohjainen sovellus
+TLDR;
 Tehtävänä luoda Kuopion Kulkijat -harrasteryhmälle sosiaalinen alusta, jossa voi jakaa kuvia ja tarinoita toteutuneista matkoista, sekä tallentaa ja muokata matkakohteita.
 Kirjautunut käyttäjä pääsee käsiksi ryhmän sisäisiin tietoihin, ja kirjautumattomalle käyttäjälle on rajattu pääsy: esim. tarinoita ei voi nähdä, ellei ole kirjautunut.
 Käyttäjä voi muokata vain omia tietojaan, tarinoitaan ja matkojaan. Mikäli matkalla on tarina, sitä ei voi muokata. Mikäli matkakohteeseen on tehty matkoja, sitäkään ei voi muokata.
