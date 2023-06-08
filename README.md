@@ -8,7 +8,7 @@ Tehtävänä luoda Kuopion Kulkijat -harrasteryhmälle sosiaalinen alusta, jossa
 Kirjautunut käyttäjä pääsee käsiksi ryhmän sisäisiin tietoihin, ja kirjautumattomalle käyttäjälle on rajattu pääsy: esim. tarinoita ei voi nähdä, ellei ole kirjautunut.
 Käyttäjä voi muokata vain omia tietojaan, tarinoitaan ja matkojaan. Mikäli matkalla on tarina, sitä ei voi muokata. Mikäli matkakohteeseen on tehty matkoja, sitäkään ei voi muokata.
 
-Oma osuuteni sisälsi matkakohteet -osion, matkojen ja tarinoiden toiminnallisuuden (controllerit ja CRUD-sivut) sekä matkakohteisiin liittyvät testit. Matkakohteiden ulkoasua ja dokumentteja (mm. vaatimus- ja tekninen määrittely) katsottiin yhdessä tiimiläisten kanssa. Matkakohteiden, matkojen ja tarinoiden CRUD-sivut löytyvät kansioista "Pages" kansion alta, matkakohteiden razor -sivut "Pages" kansiosta, controllerit omasta kansiostaan ja AddLocationTest & TripLocationTest ProjectTest:n alta.
+Oma osuuteni sisälsi matkakohteet -osion, matkojen ja tarinoiden toiminnallisuuden (controllerit ja CRUD-sivut) sekä matkakohteisiin liittyvät testit. Matkakohteiden ulkoasua ja dokumentteja (mm. vaatimus- ja tekninen määrittely) katsottiin yhdessä tiimiläisten kanssa. Matkakohteiden, matkojen ja tarinoiden CRUD-sivut löytyvät kansioista "Pages" kansion alta, matkakohteiden razor -sivut "Pages" kansiosta, controllerit omasta kansiostaan ja AddLocationTest & TripLocationTest ProjectTest:n alta. Solution tiedosto löytyy MyApi -kansiosta.
 
 Teknologiat: SqLite, ASP.NET / C#, HTML/CSS, REST API, Bunit
 
