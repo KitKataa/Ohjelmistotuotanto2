@@ -1,0 +1,96 @@
+﻿@page "/trips/add/trip"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+@inject NavigationManager NavigationManager
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+
+
+@*Matkojen lisäysformi: kuka tahansa ei voi lisätä matkoja, vaan pitää olla kirjautunut käyttäjä*@
+    @if (loginState.isLoggedIn) 
+    {
+    <h1 class="h1otsikot">Lisää matka</h1>
+        <a href="/trips">Omat matkat</a>
+
+    <div class="flex-t">
+            <EditForm Model="@newtrip" OnValidSubmit="@PostTrips">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div>
+                    <label>
+                       Matkaaja 
+                       <InputNumber class="form-control" id="idmatkaaja" disabled @bind-Value="loginState.loggedUser.idmatkaaja" /><br/>
+                       <InputText class="form-control" id="etunimi" disabled @bind-Value="matkaaja.etunimi"/>  
+                    </label>
+                </div>
+            <br />
+                <div>
+                    <label>
+                        Aloitus pvm
+                        <InputDate class="form-control" id="alku"  @bind-Value="newtrip.alkupvm" />
+                    </label>
+                </div>
+            <br />
+                <div>
+                    <label>
+                        Loppu pvm
+                        <InputDate class="form-control" id="loppu" @bind-Value="newtrip.loppupvm" />
+                    </label>
+                </div>
+            <br />
+                <div>
+                    <label style="font-size: 18px;">
+                        Yksityisyys
+                        <InputRadioGroup class="form-control" id="yksityinen" @bind-Value="newtrip.yksityinen" ><br/>
+                            <InputRadio id="0" Value="0" />Yksityinen <br/>
+                            <InputRadio id="1" Value="1" />Julkinen
+                        </InputRadioGroup>
+                    </label>
+                </div>
+            <br />
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">Lisää</button>
+            </EditForm>
+        </div>
+    }
+    else
+    {
+        <h2>  <img src="/images/loading.gif" width="150" /></h2>
+        <h2>Kirjaudu sisään lisätäksesi matkoja</h2>
+    }
+
+
+
+@code {
+    bool isSubmitting;
+    SharedLib.matkaDTO newtrip = new SharedLib.matkaDTO();
+    SharedLib.matkaajaDTO matkaaja = new SharedLib.matkaajaDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        matkaaja = await Http.GetFromJsonAsync<SharedLib.matkaajaDTO>($"api/Matkaajas/{loginState.loggedUser.idmatkaaja}");
+        newtrip.alkupvm = DateTime.Now;
+        newtrip.loppupvm = DateTime.Now;
+        await base.OnInitializedAsync();
+    }
+
+    async Task PostTrips(){ 
+        try{
+            newtrip.idmatkaaja = matkaaja.idmatkaaja;
+            isSubmitting = true;
+            if (newtrip.yksityinen != 0 && newtrip.yksityinen != 1) newtrip.yksityinen = 0; //jos unohtui valita matkan yksityisyys, niin se on yksityinen
+
+            await Http.PostAsJsonAsync($"api/Matkas", newtrip);
+
+            //Ohjataan omalle matkasivulle
+            NavigationManager.NavigateTo($"/trips");
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+        }
+    }
+}

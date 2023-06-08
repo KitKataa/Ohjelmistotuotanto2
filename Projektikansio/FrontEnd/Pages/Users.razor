@@ -1,0 +1,53 @@
+﻿@page "/users"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using SharedLib;
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+
+<h1>jäsenet</h1>
+
+@*Jäsenet-sivulla näkee kaikkien jäsenten muut tiedot paitsi salasanan ja sähköpostiosoitteem
+    Tässä ladataan jokainen jäsen taulukkoon. Jätetään sähköposti ja salasana kenttä käyttämättä :D
+*@
+@if (users != null){
+
+    <table style="width:100%">
+    <tr>
+        <th>id</th>
+        <th>kuva</th>
+        <th>nimimerkki</th>
+        <th>etunimi</th>
+        <th>sukunimi</th>
+        <th>paikkakunta</th>
+        <th>esittely</th>
+    </tr>
+    @foreach (var user in users)
+    {
+        <tr>
+            <td>@user.idmatkaaja</td>
+                <td><img src="/profilePictures/@user.kuva" width="150" alt="@user.nimimerkki"></td>
+            <td>@user.nimimerkki</td>
+            <td>@user.etunimi</td>
+            <td>@user.sukunimi</td>
+            <td>@user.paikkakunta</td>
+            <td>@user.esittely</td>
+        </tr>
+    }
+ 
+    </table>
+}else
+{
+    <h2>  <img src="/images/loading.gif" width="150"/></h2>
+    
+}
+
+@code {
+    
+    private List<SharedLib.matkaajaDTO>? users;
+    //Ladataan kaikki jäsenet tietokannasta.
+    protected override async Task OnInitializedAsync() =>
+    users = await Http.GetFromJsonAsync<List<SharedLib.matkaajaDTO>>("/api/Matkaajas");
+}

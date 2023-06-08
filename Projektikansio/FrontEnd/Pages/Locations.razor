@@ -1,0 +1,85 @@
+﻿@page "/locations"
+
+@using System.Threading.Tasks
+@using System.Net.Http
+@using System.Net.Http.Json
+
+@inject NavigationManager NavigationManager
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+@*Tästä sivu on tavallaan matkakohteiden index sivu > selaaminen
+    voi lisätä, poistaa, päivittää ja selata matkakohteita.
+    - Sellaista matkakohdetta, johon liittyy joku matkakertomus, ei saa poistaa tai päivittää
+    - Kuka tahansa ei voi tehdä CRUD toimintoja, vaan siihen pitää vaatia login.
+    - Kuka tahansa voi selata ja hakea matkakohteita
+    - matkakohdetta klikkaamalla näkee mahdolliset tarinat ja matkat, mikäli käyttäjä on kirjautunut*@
+
+
+@* Tee: 
+        -ylös hakupalkki? voi hakea/suodattaa matkakohteen nimellä > "search-as-you-type"
+
+        <img src="/profilePictures/@user.kuva.ToString()" width="150" alt="@user.nimimerkki.ToString()">
+*@
+
+<div class="topnav" style="text-align:center">
+    <div style="display:flex; justify-content:flex-end;"><h6 id="klikkaa">Klikkaamalla kuvaa näet kohteeseen liittyvät tarinat ja kuvat!</h6></div>
+    <h1 id="otsikko">Matkakohteet</h1> 
+    @if (loginState.isLoggedIn)
+    {
+
+        <a id="addlink" href="/locations/add">Lisää matkakohteita</a>
+    }
+</div>
+
+@if(locations == null){
+     <h2><img id="loading" src="/images/loading.gif" width="150" /></h2> //tämä ei pyöri jostain syystä
+}
+else if(locations != null){
+
+    <div id="locationsnotnull" style="margin-top: 5%" class="flex-c">
+        @foreach(var l in locations){
+            
+            <div id="info">
+                    @if(@l.kuva == null){
+                    <div id="nopicture" style="text-align:center"><a href="location/@l.idmatkakohde">Ei kuvaa saatavilla</a></div>
+                    }
+                    else
+                    {
+                        <div id="picture" style="text-align:center"><a id="picturelink" href="location/@l.idmatkakohde"><img src="/tripPictures/@l.kuva" width="250" height="200" /></a></div>
+                    }
+                        <div id="target"><h3>@l.kohdenimi</h3></div>
+                        <div id="placeandcountry"><h4>@l.paikkakunta, @l.maa</h4></div>
+                        <div></div>
+                        <div id="description" style="text-align:center">@l.kuvausteksti</div><br/>
+                    @if(loginState.isLoggedIn){
+                    <div style="text-align:center"><a id="editlink" href="locations/edit/@l.idmatkakohde">Muokkaa</a> | <a id="deletelink" href="locations/delete/@l.idmatkakohde">Poista</a></div> <br /><br />
+                        <div style="text-align:center"></div>
+                        //<div style="text-align:center"><a href="location/@l.idmatkakohde">Tarkastele</a></div> ---> Klikkaa kuvaa!
+                    }
+            </div>
+        }
+    </div>
+}
+
+
+
+
+@code {
+
+    public List<SharedLib.matkakohdeDTO>? locations = new List<SharedLib.matkakohdeDTO>();
+
+
+    protected override async Task OnInitializedAsync(){
+
+        try{
+            var data = await Http.GetAsync("api/Matkakohdes");
+            locations = await data.Content.ReadFromJsonAsync<List<SharedLib.matkakohdeDTO>>();
+        }
+        catch (Exception e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+}

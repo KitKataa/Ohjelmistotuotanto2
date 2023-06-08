@@ -1,0 +1,107 @@
+﻿@page "/grouptrips"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState
+
+<link rel="stylesheet" type="text/css" href="css/app.css?version=0.1">
+
+
+
+
+<h1 id="AloitusOtsikko" class="h1otsikot">Porukan Matkat</h1>
+@*voi selata (ei-yksityisiä) porukan matkoja ja niihin liitettyjä tarinoita ja kuvia*@
+
+@if (tarinas == null && matkakohde == null)
+{
+    <h2>  <img src="/images/loading.gif" width="150" /></h2>
+}
+else
+{
+    //Matkat (julkiset)
+    <hr class="rounded">
+        <br />
+
+    <br />
+    <div class="flex-t">
+        <div style="text-decoration-line: underline; text-decoration-color: lightblue"> Matkakoodi</div>
+        <div style="text-decoration-line: underline; text-decoration-color: lightblue"> Matkan aloitus ja lopetus pvm</div>
+        <div> </div>
+
+
+        @foreach (var matka in matkas)
+        {
+            //Näyttää vain omat matkat
+            if (matka.yksityinen == 1)
+            {
+                <div>@matka.idmatka.ToString()</div>
+                <div>@matka.alkupvm.ToString().Replace("0.00.00", "") - @matka.loppupvm.ToString().Replace("0.00.00", "")</div>
+                <div></div>
+
+            }
+        }
+
+    </div>
+    <br />
+    <br />
+    <br />
+    <hr class="rounded">
+    //Tarinat
+         <h2 class="h2otsikot">Matkoihin liittyvät tarinat ja kuvat</h2>
+    <br />
+    <br />
+    <div class="flex-c">
+
+        @foreach (var tarina in tarinas)
+        {
+            matka = matkas.FirstOrDefault(m => m.idmatka == tarina.idmatka);
+
+            if (matka.yksityinen == 1)
+            {
+                matkakohde = matkakohdes.FirstOrDefault(m => m.idmatkakohde == tarina.idmatkakohde);
+
+                <div>
+                    <h4 style="text-align: left;">Matka nro @tarina.idmatka.ToString()</h4>
+                    <img src="/tripPictures/@matkakohde.kuva" width="250" height="200" />
+                    <div style="font-style: italic">@matka.alkupvm.ToString().Replace("0.00.00", "") - @matka.loppupvm.ToString().Replace("0.00.00", "")</div>
+                    @*<p>Tarinan nro: @tarina.idtarina.ToString()</p>*@
+                    <p> @matkakohde.kohdenimi</p>
+                    <p>@tarina.teksti</p>
+                    <p>Tarina kirjoitettu @tarina.pvm.ToString().Replace("0.00.00", "")</p>
+                </div>
+
+
+            }
+
+        }
+
+    </div>
+}
+
+@code {
+    private List<SharedLib.kuvaDTO>? kuvatus;
+    private List<SharedLib.tarinaDTO>? tarinas;
+    private List<SharedLib.matkakohdeDTO>? matkakohdes;
+    private List<SharedLib.matkaDTO>? matkas;
+    private SharedLib.matkakohdeDTO matkakohde;
+    private SharedLib.matkaDTO matka;
+
+
+    public string Hidden { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarinas = await Http.GetFromJsonAsync<List<SharedLib.tarinaDTO>>("/api/Tarinas");
+        matkakohdes = await Http.GetFromJsonAsync<List<SharedLib.matkakohdeDTO>>("/api/Matkakohdes");
+        matkas = await Http.GetFromJsonAsync<List<SharedLib.matkaDTO>>("/api/Matkas");
+    }
+
+
+    protected void OnClick(MouseEventArgs mouseEventArgs)
+    {
+        
+    }
+
+
+}

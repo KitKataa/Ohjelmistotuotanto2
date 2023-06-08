@@ -1,0 +1,109 @@
+﻿@page "/trips/edit/{IdMatka:long}"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+@inject NavigationManager NavigationManager
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+
+@if (loginState.isLoggedIn) {
+
+    <h3>Muokkaa matkaa</h3>
+
+    <a href="/trips">Omat matkat</a>
+    @if (editTrip != null && editTrip.idmatkaaja == loginState.loggedUser.idmatkaaja)
+    {@*MATKAA EI VOI MUOKATA, JOS EI OLE OMA*@
+                <h3>Muokataan matkaa @editTrip.idmatka</h3>
+                <div style="text-align:center">
+                    <EditForm Model="@editTrip" OnValidSubmit="@EditTrips">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div>
+                            <label>
+                                Matkaaja
+                                <InputNumber class="form-control" id="matkaaja" disabled @bind-Value="editTrip.idmatkaaja" /><br/>
+                                <InputText class="form-control" id="etunimi" disabled @bind-Value="loginState.loggedUser.etunimi" />
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Aloitus pvm
+                                <InputDate class="form-control" id="alku" @bind-Value="editTrip.alkupvm" />
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Loppu pvm
+                                <InputDate class="form-control" id="loppu" @bind-Value="editTrip.loppupvm" />
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Yksityisyys
+                                @if(editTrip.yksityinen == 0){<div>Yksityinen</div>}
+                                else if(editTrip.yksityinen == 1){<div>Julkinen</div>}
+                                <InputRadioGroup class="form-control" id="yksityinen" @bind-Value="editTrip.yksityinen">
+                                    <br />
+                                    <InputRadio id="0" Value="0"/>Yksityinen@*Value="editTrip.yksityinen=0"*@
+                                    <InputRadio id="1" Value="1"/> Julkinen
+                                </InputRadioGroup>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">Lisää</button>
+                    </EditForm>
+                </div>
+    }
+    @if (r == 1)
+    {@*Jos r = 1, se tarkoittaa ettei matkaa muokattu, koska se sisälsi tarinan*@
+        <br />
+        <div style="text-align:center"><h3>Matka sisältää tarinan.<br />Matkaa ei voi muokata.</h3></div>
+    }
+
+}
+else{
+    <h2>  <img src="/images/loading.gif" width="150" /></h2>
+    <h2>Kirjaudu sisään muokataksesi matkoja</h2>
+}
+
+
+@code {
+    [Parameter]
+    public long? IdMatka { get; set; }
+
+    bool isSubmitting;
+    SharedLib.matkaDTO? editTrip; 
+    private int? r { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editTrip = await Http.GetFromJsonAsync<SharedLib.matkaDTO>($"api/Matkas/{IdMatka}");
+        await base.OnInitializedAsync();
+    }
+
+    async Task EditTrips(){
+        try{
+
+            isSubmitting = true;
+            var result = await Http.PutAsJsonAsync($"api/Matkas/{IdMatka}", editTrip);
+
+            if (result.StatusCode == System.Net.HttpStatusCode.NoContent) //editoijalle viesti, että ei voitu muokata tarinan takia
+            {
+                r = 1; 
+            }
+            else
+            {
+                //saako tähän väliin pyöritettyä pyörää?
+                NavigationManager.NavigateTo($"/trips");
+            }
+            
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+        }
+        
+    }
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Kuopion Kulkijat</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="FrontEnd.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <style>
+        body {
+            background-color: #457b9d;
+            background-image: url("/images/tausta.png");
+            height: 500px;
+            background-position: center;
+            background-repeat: repeat;
+        }
+
+        .lataus {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top:15%;
+        }
+    </style>
+</head>
+ <!--Tässä ns. lataus ruutu, korvasin tekstin palkupyöränrenkaalla, joka pyörii, käytin suoraan gifiä, joten se pyörii tarvittaessa loputtomasti :DD-->
+<body>
+    <div id="app">
+   
+            <img src="/images/loading.gif"  width="300" class="lataus"/>
+      
+    </div>
+
+    <div id="blazor-error-ui">
+       Tahtomaton virhe on tapahtunut.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+﻿@page "/signup"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+
+<h1>Rekisteröidy</h1>
+@if (user != null)
+{
+<div class="palsta">
+    <EditForm Model="@user" OnValidSubmit="@SignUp">
+      
+        <div class="form-group">
+            <label for="etunimi">Etunimi</label>
+            <InputText class="form-control" id="etunimi" @bind-Value="user.etunimi"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="sukunimi">Sukunimi</label>
+            <InputText class="form-control" id="sukunimi" @bind-Value="user.sukunimi"></InputText>
+        </div>
+        <div class="form-group">
+            <label for="nimimerkki">Nimimerkki</label>
+            <InputText class="form-control" id="nimimerkki" @bind-Value="user.nimimerkki"></InputText>
+        </div>
+            <div class="form-group">
+                <label for="esittely">Esittely</label>
+                <InputText class="form-control" id="esittely" @bind-Value="user.esittely"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="paikkakunta">Paikkakunta</label>
+                <InputText class="form-control" id="paikkakunta" @bind-Value="user.paikkakunta"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="kuva">Kuva</label>
+                <table id="kuva" style="background-color: transparent;" border="0">
+                    <tr>
+                        <td><img src="profilePictures/1.png" width="133" height="133" alt="1" /></td>
+                        <td><img src="profilePictures/2.png" width="133" height="133" alt="2" /></td>
+                        <td><img src="profilePictures/3.png" width="133" height="133" alt="3" /></td>
+                        <td><img src="profilePictures/4.png" width="133" height="133" alt="4" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="1.png" @onchange="uusiKuva" checked="checked"/></td>
+                        <td><input type="radio" name="kuva" value="2.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="3.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="4.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td><img src="profilePictures/5.png" width="133" height="133" alt="5.png" /></td>
+                        <td><img src="profilePictures/6.png" width="133" height="133" alt="6.png" /></td>
+                        <td><img src="profilePictures/7.png" width="133" height="133" alt="7.png" /></td>
+                        <td><img src="profilePictures/8.png" width="133" height="133" alt="8.png" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="5.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="6.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="7.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="8.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td><img src="profilePictures/9.png" width="133" height="133" alt="9" /></td>
+                        <td><img src="profilePictures/10.png" width="133" height="133" alt="10" /></td>
+                        <td><img src="profilePictures/11.png" width="133" height="133" alt="11" /></td>
+                        <td><img src="profilePictures/12.png" width="133" height="133" alt="12" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="9.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="10.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="11.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="12.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td><img src="profilePictures/13.png" width="133" height="133" alt="13" /></td>
+                        <td><img src="profilePictures/14.png" width="133" height="133" alt="14" /></td>
+                        <td><img src="profilePictures/15.png" width="133" height="133" alt="15" /></td>
+                        <td><img src="profilePictures/16.png" width="133" height="133" alt="16" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="13.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="14.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="15.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="16.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText class="form-control" id="email" @bind-Value="user.email"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="password">password</label>
+                <InputText class="form-control" id="password" @bind-Value="user.password" ></InputText>
+            </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:10px;">Rekisteröidy</button>
+    </EditForm>
+</div>
+
+}else
+{
+<h2>  <img src="/images/loading.gif" width="150" /></h2>
+
+}
+
+
+@code {
+
+    private string kuva { get; set; }  
+    public SharedLib.matkaajaDTO? user = new();
+    [Inject] public HttpClient Http { get; set; }
+    [Inject] public NavigationManager NavManager { get; set; }
+
+    public async Task SignUp()
+
+    {
+        if (kuva == null)
+        {
+
+            kuva = "0.png";
+
+        }
+        user.kuva = kuva; 
+    
+        user.idmatkaaja = 0;
+        Console.WriteLine(user);
+        await Http.PostAsJsonAsync("/api/Matkaajas", user);
+        NavManager.NavigateTo("/login");
+
+    }
+     
+    private void uusiKuva(ChangeEventArgs e)
+    {
+        //Kuva tulee radiobuttonin valinnan mukaan.
+        kuva = e.Value as string;
+        
+    }
+}

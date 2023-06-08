@@ -1,0 +1,116 @@
+﻿@inject HttpClient Http
+@*@using SharedLib;*@
+@inject SharedLib.LoginState loginState
+@inject NavigationManager NavigationManager
+<div class="top-row ps-3 navbar navbar-dark">
+
+    <div class="container-fluid">
+
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="logo">
+            <NavLink  href="" >
+        <img src="/images/logo2.kopio.png" width="200px" />
+            </NavLink>
+        </div>
+@*        NÄKYY KAIKILLE*@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Etusivu
+            </NavLink>
+        </div>  
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="locations">
+                <span class="oi oi-map-marker" aria-hidden="true"></span> Matkakohteet
+            </NavLink>
+        </div>
+        @if (loginState.isLoggedIn.Equals(true))
+        {
+      @*  NÄKYY KIRJAUTUNEILLE*@
+           <div class="nav-item px-3">
+            <NavLink class="nav-link" href="grouptrips">
+                <span class="oi oi-signpost" aria-hidden="true"></span> Porukan matkat
+            </NavLink>
+        </div>
+               <div class="nav-item px-3">
+            <NavLink class="nav-link" href="trips">
+                <span class="oi oi-compass" aria-hidden="true"></span> Omat matkat
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="users">
+                <span class="oi oi-people" aria-hidden="true"></span> Jäsenet
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@UserLink">
+                <span class="oi oi-person" aria-hidden="true"></span> @loginState.loggedUser.nimimerkki
+            </NavLink>
+        </div>
+        <div class="logout">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="#" onclick="@logOut">
+                    <span class="oi oi-account-logout"></span> Kirjaudu ulos
+            </NavLink>
+        </div>
+            </div>
+        }
+        @*NÄKYY KAIKILLE paitsi kirjautuneille*@
+        @if(loginState.isLoggedIn.Equals(false)){
+        <div class="nav-item px-3">
+                <NavLink class="nav-link" href="signup" id="rekisteroidy" @onclick="@(() => NavigationManager.NavigateTo("/signup"))">
+                <span class="oi oi-flag" aria-hidden="true"></span> Rekisteröidy
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login" @onclick="@(() => NavigationManager.NavigateTo("/login"))" id="kirjaudu">
+                <span class="oi oi-lock-locked" aria-hidden="true"></span> Kirjaudu sisään
+            </NavLink>
+        </div>
+        }
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string UserLink => $"user/{loginState.loggedUser.idmatkaaja}";
+    //private matkaajaDTO? loggedUser;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    //private async void OnStatusChanged(object sender, EventArgs e)
+    //{
+
+
+    //    await InvokeAsync(() => StateHasChanged());
+    //}
+    //protected override async Task OnInitializedAsync(){
+
+    //}
+    protected override void OnInitialized()
+    {
+        loginState.OnChange += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        loginState.OnChange -= StateHasChanged;
+    }
+
+    public void logOut()
+    {
+        loginState.SetLogin(false, loginState.loggedUser);
+        //NavigationManager.NavigateTo("login");
+    }
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

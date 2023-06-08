@@ -1,0 +1,117 @@
+﻿@page "/"
+@using System.Xml.Linq
+
+@inject SharedLib.LoginState loginState;
+@inject HttpClient httpClient
+
+<h1>@tervehdysViesti</h1>
+
+@if (rssItems != null)
+{
+    <div class="box">
+
+   @* valikko, kuinka monta uutista ladataan sivulle.*@
+   
+    <select id="take" @onchange="NaytettavatUutiset">
+        <option value="25" selected>25</option>
+        <option value="50">50</option>
+     <option value="75">75</option>
+        <option value="@rssItems.Count">@rssItems.Count</option>
+    </select>
+</div>
+
+    @foreach (var item in rssItems.Take(that))
+    {
+    @*    Ladataan uutiset sivulle*@
+        <a href="@item.Link" target="_blank">
+            
+            <div class="uutinen">
+                <h3 class="pvm" >@item.PublishDate.ToShortDateString()</h3>
+                <div class="uutinenSisa">
+                <h2>@item.Title</h2>
+                <img src="@item.ImageUrl" alt="@item.ImageUrl" class="uutiskuva"/>
+           @*     <h6>@item.Description</h6>*@
+                </div>
+            </div>
+        </a>
+    }
+}
+else
+{
+    <h2><img src="/images/loading.gif" width="150" /></h2>
+}
+
+@code {
+    private string tervehdysViesti { get; set; }
+    private List<RssItem> rssItems;
+    private int that = 25;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Haetaan suunnon pyöräilyuutiset RSS feedin avulla
+        var response = await httpClient.GetAsync("https://www.suunto.com/fi-fi/sports/rss-feeds/suuntoride/?category=SuuntoRide");
+        var content = await response.Content.ReadAsStringAsync();
+
+        // Parsitaan haettu RSS
+        var doc = XDocument.Parse(content);
+        var items = doc.Descendants("item").Select(item => new RssItem
+            {
+                Title = item.Element("title")?.Value,
+                Link = item.Element("link")?.Value,
+                Description = item.Element("description")?.Value,
+                PublishDate = DateTime.Parse(item.Element("pubDate")?.Value),
+                ImageUrl = item.Descendants("image").FirstOrDefault()?.Element("url")?.Value
+
+            });
+        rssItems = items.ToList();
+        Console.WriteLine(rssItems.Count);
+        // Tässä tervehditään käyttäjää kellonajan mukaan, tulee kohdattu olo :DD
+        DateTime now = DateTime.Now;
+        int hour = now.Hour;
+
+        if (hour >= 6 && hour < 10)
+        {
+            tervehdysViesti = "Hyvää huomenta";
+        }
+        else if (hour >= 10 && hour < 16)
+        {
+            tervehdysViesti = "Hyvää päivää";
+        }
+        else if (hour >= 16 && hour < 21)
+        {
+            tervehdysViesti = "Hyvää iltaa";
+        }
+        else
+        {
+            tervehdysViesti = "Hyvää yötä";
+            if (tervehdysViesti == null)
+            {
+                //jos jostain syystä ei kellonaika toiminto toimi, saa (toivottavasti) tervehdysviesti custom viestin.
+                tervehdysViesti = "Tervehdys";
+            }
+        }
+
+        // JOS käyttäjä on KIRJAUTUNUT, tulee hänen nimensä tervehdysken perään
+        if (loginState.isLoggedIn)
+        {
+            tervehdysViesti += ", " + loginState.loggedUser.etunimi +"!";
+        }
+    }
+
+    //Tällä funktiolla, saadaan aikaiseksi se, kuinkamonta uutista rss feedistä generoidaan sivulle.
+    private void NaytettavatUutiset(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value.ToString(), out int result);
+        that = result;
+    }
+
+    //en näille alkanut luomaan suotta omaa luokkaansa.
+    private class RssItem
+    {
+        public string Title { get; set; }
+        public string Link { get; set; }
+        public string Description { get; set; }
+        public DateTime PublishDate { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}

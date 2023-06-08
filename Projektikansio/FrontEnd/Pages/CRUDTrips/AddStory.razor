@@ -1,0 +1,103 @@
+﻿@page "/trips/add/story/{IdMatka:long}"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+@inject NavigationManager NavigationManager
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+@if (loginState.isLoggedIn) @*kuka tahansa ei voi lisätä matkoja, vaan pitää olla kirjautunut käyttäjä*@
+{
+    <h1>Lisää matkaan tarina</h1>
+    <a href="/trips">Omat matkat</a>
+
+    <div style="text-align:center">
+        <EditForm Model="@newstory" OnValidSubmit="@PostStories">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div>
+                <label>
+                    Matka
+                    <InputNumber class="form-control" id="idmatka" disabled @bind-Value="newstory.idmatka" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    Matkakohde
+                    @*<InputNumber class="form-control" id="idmatkakohde" @bind-Value="newstory.idmatkakohde" />*@
+                    <InputSelect @bind-Value="newstory.idmatkakohde">
+                        @foreach(var l in locations){
+                            <option value="@l.idmatkakohde">@l.kohdenimi</option>
+                        }   
+                    </InputSelect>
+                </label>
+            </div>
+            <div>
+                <label>
+                    Pvm
+                    <InputDate class="form-control" id="pvm" @bind-Value="newstory.pvm" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    Teksti
+                    <InputTextArea class="form-control" id="teksti" @bind-Value="newstory.teksti" />
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">Lisää</button>
+        </EditForm>
+    </div>
+}
+else
+{
+    <h2>  <img src="/images/loading.gif" width="150" /></h2>
+    <h2>Kirjaudu sisään lisätäksesi matkoja</h2>
+}
+
+@code {
+    bool isSubmitting;
+    SharedLib.tarinaDTO newstory = new SharedLib.tarinaDTO();
+    SharedLib.matkaDTO? matka = new SharedLib.matkaDTO();
+    List<SharedLib.matkakohdeDTO>? locations = new List<SharedLib.matkakohdeDTO>();
+
+    [Parameter]
+    public long? IdMatka { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        matka = await Http.GetFromJsonAsync<SharedLib.matkaDTO>($"api/Matkas/{IdMatka}");
+        locations = await Http.GetFromJsonAsync<List<SharedLib.matkakohdeDTO>>($"api/Matkakohdes");
+
+
+
+        newstory.idmatka = matka.idmatka;
+        newstory.pvm = matka.alkupvm;
+        await base.OnInitializedAsync();
+    }
+
+    async Task PostStories()
+    {
+        try
+        {
+            if(newstory.idmatkakohde == 0){ //jos matkakohdetta ei valittu, otetaan ensimmäinen
+                newstory.idmatkakohde = 1;
+            }
+
+            isSubmitting = true;
+            var result = await Http.PostAsJsonAsync($"api/Tarinas", newstory);
+            Console.WriteLine(result);
+
+
+            //Ohjataan omalle matkasivulle
+            NavigationManager.NavigateTo($"/trips");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+}
+

@@ -1,0 +1,111 @@
+﻿@page "/login"
+@inject HttpClient Http;
+@using SharedLib;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject SharedLib.LoginState loginState;
+
+
+<h1>Kirjaudu</h1>
+
+<div class="palsta">
+
+    <div>
+        <EditForm Model="@response" OnSubmit="@login">
+            <div class="form-group">
+                <label for="email">Sähköpostiosoite</label>
+                <InputText @bind-Value="Email" type="email" class="form-control" id="email" placeholder="Sähköpostiosoite" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Salasana</label>
+                <InputText @bind-Value="Password" type="password" class="form-control" id="password" placeholder="Salasana" />
+            </div>
+            <div>
+                <h6 style="color:white;">@errorMessage</h6>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Kirjaudu sisään</button>
+            </div>
+
+        </EditForm>
+
+        <NavLink class="nav-link" href="signup">
+            <span class="oi oi-flag" aria-hidden="true"></span> Rekisteröidy
+        </NavLink>
+
+    </div>
+</div>
+
+@code {
+    private string errorMessage = "";
+
+    //NÄMÄ USERNAME JA PASSWORD ON NYT VAAN MALLINA. MIETITÄÄN MITÄN NÄMÄ YMPPÄYTYY SIIHEN DBHEN Kirjautuminen tapahtuu sähköpostiosoitteen ja salasanan avulla.
+    public string Email { get; set; }
+    private string Password { get; set; }
+    private matkaajaDTO? response = new matkaajaDTO();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                if (loginState.isLoggedIn.Equals(true))
+                {
+                    NavigationManager.NavigateTo("/user/" + loginState.loggedUser.idmatkaaja, true);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+
+            Console.WriteLine("LE ERROR");
+            errorMessage = "Error1: " + e.Message;
+        }
+    }
+
+    public async Task login()
+    {
+        try
+        {
+
+            //response = await Http.GetFromJsonAsync<matkaajaDTO>("/auth?email=" + Email + "&pass=" + Password);
+
+            //if (response != null)
+            //{
+            //    AuthUser.CurrentUser = response;
+            //    NavigationManager.NavigateTo("/user/" + AuthUser.CurrentUser.idmatkaaja);
+            //}else{
+            //    await JSRuntime.InvokeAsync<string>("alert", "Invalid email or password");
+            //}
+
+            loginState.loggedUser = await Http.GetFromJsonAsync<matkaajaDTO>("/auth?email=" + Email + "&pass=" + Password);
+            if (loginState.loggedUser != null)
+            {
+                loginState.SetLogin(true, loginState.loggedUser);
+            }
+            Console.WriteLine("Response: " + loginState.loggedUser);
+            //AuthUser.CurrentUser = response;
+            if (loginState.isLoggedIn.Equals(true))
+            {
+                Console.WriteLine("Response is not null, navigating to user page");
+                NavigationManager.NavigateTo("/user/" + loginState.loggedUser.idmatkaaja);
+            }
+            else
+            {
+                Console.WriteLine("Response is null, displaying error message");
+                await JSRuntime.InvokeAsync<string>("alert", "Invalid email or password");
+            }
+
+        }
+        catch (Exception e)
+        {
+
+            Console.WriteLine("LE ERROR");
+            errorMessage = "kirjautuminen estetty";
+        }
+    }
+
+}

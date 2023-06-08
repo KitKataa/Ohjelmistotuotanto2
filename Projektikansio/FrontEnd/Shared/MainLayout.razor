@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+       <article class="content px-4">
+            <div class="kontti">
+                <div class="ikkuna">              
+                <div class="card-body">
+                    @Body
+                </div>
+            </div>
+            <div class="alapalkki">
+                         <NavLink class="nav-link" href="terms">
+                <span class="oi oi-list" aria-hidden="true"></span> Käyttöehdot
+                        </NavLink>
+            </div>
+            </div>
+        </article>
+    </main>
+</div>

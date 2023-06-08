@@ -1,0 +1,163 @@
+﻿@page "/user/{Id:int}"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+@inject IJSRuntime JSRuntime
+
+<h1>@loginState.loggedUser.nimimerkki</h1>
+@if (user != null)
+{
+   //Ladataan käyttäjän tiedot oliosta.
+            <div class="palsta"> 
+                      <EditForm Model="@user" OnValidSubmit="@UpdateUser">
+                        <img src="profilePictures/@user.kuva"  alt="1" />
+            <div class="form-group">
+                <label for="etunimi">Etunimi</label>
+                <InputText class="form-control" id="etunimi" @bind-Value="loginState.loggedUser.etunimi"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="sukunimi">Sukunimi</label>
+                <InputText class="form-control" id="sukunimi" @bind-Value="loginState.loggedUser.sukunimi"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="nimimerkki">Nimimerkki</label>
+                <InputText class="form-control" id="nimimerkki" @bind-Value="loginState.loggedUser.nimimerkki"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="paikkakunta">Paikkakunta</label>
+                <InputText class="form-control" id="paikkakunta" @bind-Value="loginState.loggedUser.paikkakunta"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="esittely">Esittely</label>
+                <InputText class="form-control" id="esittely" @bind-Value="loginState.loggedUser.esittely"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="email">Sähköposti</label>
+                <InputText class="form-control" id="email" @bind-Value="loginState.loggedUser.email"></InputText>
+            </div>
+            <div class="form-group">
+                <label for="password">Salasana</label>
+                <InputText class="form-control" id="password" @bind-Value="loginState.loggedUser.password"></InputText>
+            </div>
+            
+            <div class="form-group">
+                <label for="kuva">Kuva</label>
+                <table id="kuva" style="background-color: transparent;"  border="0">
+                    <tr>
+                        <td><img src="profilePictures/1.png" width="133" height="133" alt="1" /></td>
+                        <td ><img src="profilePictures/2.png" width="133" height="133" alt="2" /></td>
+                        <td ><img src="profilePictures/3.png" width="133" height="133" alt="3" /></td>
+                        <td ><img src="profilePictures/4.png" width="133" height="133" alt="4" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="1.png" @onchange="uusiKuva"  /></td>
+                        <td><input type="radio" name="kuva" value="2.png" @onchange="uusiKuva" /></td>
+                        <td ><input type="radio" name="kuva" value="3.png" @onchange="uusiKuva"/></td>
+                        <td><input type="radio" name="kuva" value="4.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td ><img src="profilePictures/5.png" width="133" height="133" alt="5.png" /></td>
+                        <td ><img src="profilePictures/6.png" width="133" height="133" alt="6.png" /></td>
+                        <td ><img src="profilePictures/7.png" width="133" height="133" alt="7.png" /></td>
+                        <td ><img src="profilePictures/8.png" width="133" height="133" alt="8.png" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="5.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="6.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="7.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="8.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td ><img src="profilePictures/9.png" width="133" height="133" alt="9" /></td>
+                        <td ><img src="profilePictures/10.png" width="133" height="133" alt="10" /></td>
+                        <td ><img src="profilePictures/11.png" width="133" height="133" alt="11" /></td>
+                        <td ><img src="profilePictures/12.png" width="133" height="133" alt="12" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="9.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="10.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="11.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="12.png" @onchange="uusiKuva" /></td>
+                    </tr>
+                    <tr>
+                        <td ><img src="profilePictures/13.png" width="133" height="133" alt="13" /></td>
+                        <td ><img src="profilePictures/14.png" width="133" height="133" alt="14" /></td>
+                        <td ><img src="profilePictures/15.png" width="133" height="133" alt="15" /></td>
+                        <td ><img src="profilePictures/16.png" width="133" height="133" alt="16" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="kuva" value="13.png" @onchange="uusiKuva" /></td>
+                        <td><input type="radio" name="kuva" value="14.png" @onchange="uusiKuva" /></td>
+                        <td ><input type="radio" name="kuva" value="15.png" @onchange="uusiKuva"/></td>
+                        <td ><input type="radio" name="kuva" value="16.png" @onchange="uusiKuva"/></td>
+                    </tr>
+                </table>
+            
+        </div>
+     <div>
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;">Päivitä</button>
+                <a class="btn btn-danger" style="margin-top:10px" href=" /">Peruuta</a>
+     </div>
+
+    </EditForm>
+        
+</div>
+
+}else
+{
+<h2>  <img src="/images/loading.gif" width="150" /></h2>
+
+}
+@*voi päivittää omia tietojaan (matkaaja-taulu). 
+Sähköpostin ja salasanan muuttamista ei tarvitse sallia, 
+mutta jos sen sallii, niin se pitää huomioida kirjautumisessa.*@
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private SharedLib.matkaajaDTO? user;
+    private string kuva { get; set; }
+    //Sivun lataus
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        //ladataan käyttäjän tiedot tietokannasta, käyttämällä id:eetä.
+        user = await Http.GetFromJsonAsync<SharedLib.matkaajaDTO>($"api/Matkaajas/{Id}");
+        try
+        {
+            if (loginState.loggedUser.idmatkaaja.Equals(user.idmatkaaja))
+            {
+                //await JSRuntime.InvokeAsync<string>("alert", "You are authorized");
+            }
+        }
+        catch
+        {
+            await JSRuntime.InvokeAsync<string>("alert", "You are not authorized");
+        }
+
+
+
+
+    }
+
+    //Päivitys
+    private async Task UpdateUser()
+    {
+        loginState.loggedUser.kuva = kuva;
+        await Http.PutAsJsonAsync($"api/Matkaajas/{Id}", loginState.loggedUser);
+        NavManager.NavigateTo("/");
+    }
+    //Avatarin vaihto
+    private void uusiKuva(ChangeEventArgs e)
+    {
+        kuva = e.Value as string;
+        user.kuva = kuva;
+        
+    }
+
+}

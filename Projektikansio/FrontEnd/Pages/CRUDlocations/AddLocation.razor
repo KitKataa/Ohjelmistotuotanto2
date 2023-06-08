@@ -1,0 +1,114 @@
+﻿@page "/locations/add"
+
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using System.IO
+
+@inject NavigationManager NavigationManager
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+@inject SharedLib.LoginState loginState;
+
+@if (loginState.isLoggedIn) @*kuka tahansa ei voi lisätä matkakohteita, vaan pitää olla kirjautunut käyttäjä*@
+{
+    <h1 id="lisaamatkakohde" class="h1otsikot">Lisää matkakohde</h1>
+    <div class="flex-t">
+        <EditForm Model="@newlocation" OnValidSubmit="@PostLocations">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div>
+                <br />
+                <label>
+                    @if (@newlocation.kuva == null)
+                    {
+                        <div>Ei kuvaa saatavilla</div><br />
+                    }
+                    else
+                    {
+                        <div style="text-align:center"><img src="tripPictures/@newlocation.kuva" width="133" height="133" alt="1" /> </div><br/>
+                    }
+                    Kuva<br />
+                    
+                    <InputSelect id="kuva" @bind-Value="newlocation.kuva">
+                        <option >- Valitse kuva -</option>
+                        @foreach(var i in pictures){
+                            <option value="@i"><img src="tripPictures/@i"/>@i</option>
+                        }
+                    </InputSelect>
+
+                    @* <InputText class="form-control" id="kuva" @bind-Value="newlocation.kuva" />*@
+                </label>
+            </div>
+            <br />
+            <div>
+                <label>Kohdenimi
+                    <InputText class="form-control" id="kohdenimi" @bind-Value="newlocation.kohdenimi"/>
+                </label>
+            </div>
+            <br/>
+            <div>
+                <label>Paikkakunta
+                    <InputText class="form-control" id="paikkakunta" @bind-Value="newlocation.paikkakunta"/>
+                </label>
+            </div>
+                <br/>
+            <div>
+                <label>
+                    Maa
+                    <InputText class="form-control" id="maa" @bind-Value="newlocation.maa" />
+                </label>
+            </div>
+            <br />
+            <div>
+                <label>Kuvausteksti
+                    <InputTextArea class="form-control" id="kuvausteksti" @bind-Value="newlocation.kuvausteksti"/>
+                </label>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary" id="AddButton" disabled="@isSubmitting">Lisää</button>
+        </EditForm>
+    </div>
+}
+else {
+    <h2 id="loading">  <img src="/images/loading.gif" width="150" /></h2>
+    <h2 id="notloggedin">Kirjaudu sisään lisätäksesi matkakohteita</h2>
+}
+
+@code {
+
+    public bool isSubmitting;
+    public SharedLib.matkakohdeDTO newlocation = new SharedLib.matkakohdeDTO();
+    //private List<string>? images = new List<string>();
+    //Nämä laitettu käsin, koska alla oleva dynaaminen kuvien nimien haku tiedostosta ei onnistunut -> PURKKARATKAISU
+    private string[] pictures = { "Bellano.jpg", "Bellano2.jpg", "Fréhel.jpg", "Hollanti.jpg", "Hollanti2.jpg", "img.jpg", "Keukenhof.jpg", "Koli.jpg", "Kööpenhamina.jpg", 
+    "Lyypekki.jpg", "Mont-Saint-Michel.jpg", "MualimanNapa2.jpg", "MualimanNapa.jpg", "Oulu.jpg", "Pariisi.jpg", "Pariisi2.jpg", "Uhrikivi.jpg", "Westport.jpg" };
+
+    /* protected override async Task OnInitializedAsync()
+     {//C:\OHJELMISTOTUOTANTO2\Projektikansio\FrontEnd\wwwroot\tripPictures\
+        //string[] files = Directory.GetFiles(@"MyApi\FrontEnd\wwwroot\tripPictures", "*.jpg");
+
+        foreach (string img in System.IO.Directory.GetFiles("tipPictures"))
+              { //Directory.GetFiles(directory, "*.jpg")
+                    images.Add(img.ToString());
+              }
+         await base.OnInitializedAsync();
+      }*/
+
+    async Task PostLocations(){
+
+        try{
+            
+           isSubmitting = true;
+           var result = await Http.PostAsJsonAsync($"api/Matkakohdes", newlocation);
+
+           //saako tähän väliin pyöritettyä pyörää?
+           NavigationManager.NavigateTo($"/locations");
+            
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+        }
+        
+    }
+}
